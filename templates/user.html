@@ -2,36 +2,89 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management</title>
+    <title>CRUD test</title>
 </head>
 <body>
-    <h1>User Management</h1>
-    
-    <form action="/add" method="POST">
-        <input type="text" name="name" placeholder="Name" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="number" name="age" placeholder="Age" required>
-        <button type="submit">Add User</button>
-    </form>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">{% if editing %}Update User{% else %}Users{% endif %}</h1>
 
-    <h2>Users</h2>
-    <ul>
-        {% for user in users %}
-            <li>{{ user.name }} ({{ user.email }}, {{ user.age }})
-                <a href="/delete/{{ user.id }}">Delete</a>
-            </li>
-        {% endfor %}
-    </ul>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        <div class="mb-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
 
-    {% with messages = get_flashed_messages(with_categories=True) %}
-    {% if messages %}
-        <ul>
-        {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    {% endwith %}
+        {% if editing %}
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form action="/update/{{ user.id }}" method="POST" class="border p-4 shadow rounded">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" value="{{ user.name }}" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" value="{{ user.age }}" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Update User</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-md-8">
+                <ul class="list-group">
+                    {% for user in users %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ user.name }} - {{ user.email }} - {{ user.age }}</span>
+                        <div>
+                            <a href="/update/{{ user.id }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="/delete/{{ user.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <form action="/add" method="POST" class="border p-4 shadow rounded">
+                    <h4 class="text-center">Add New User</h4>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" placeholder="Age" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">Add User</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
