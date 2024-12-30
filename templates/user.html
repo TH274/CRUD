@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="../static/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD test</title>
+    <title>User Management</title>
 </head>
 <body>
     <div class="container mt-5">
@@ -29,7 +29,7 @@
         {% if editing %}
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <form action="/update/{{ user.id }}" method="POST" class="border p-4 shadow rounded">
+                <form action="{{ url_for('users.update_user', user_id=user.id) }}" method="POST" class="border p-4 shadow rounded">
                     <div class="form-group">
                         <label for="name">Name</label>
                         <input type="text" id="name" name="name" value="{{ user.name }}" class="form-control" required>
@@ -54,15 +54,15 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>{{ user.name }} - {{ user.email }} - {{ user.age }}</span>
                         <div>
-                            <a href="/update/{{ user.id }}" class="btn btn-sm btn-warning">Edit</a>
-                            <a href="/delete/{{ user.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
+                            <a href="{{ url_for('users.update_user', user_id=user.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ url_for('users.delete_user', user_id=user.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
                         </div>
                     </li>
                     {% endfor %}
                 </ul>
             </div>
             <div class="col-md-4">
-                <form action="/add" method="POST" class="border p-4 shadow rounded">
+                <form action="{{ url_for('users.add_user') }}" method="POST" class="border p-4 shadow rounded">
                     <h4 class="text-center">Add New User</h4>
                     <div class="form-group">
                         <label for="name">Name</label>
@@ -81,6 +81,11 @@
             </div>
         </div>
         {% endif %}
+        
+        <!-- Logout Button -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
