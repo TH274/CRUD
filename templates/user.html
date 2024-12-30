@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">{% if editing %}Update User{% else %}Users{% endif %}</h1>
+        <h1 class="text-center mb-4">{% if editing %}Update User{% else %}User Management{% endif %}</h1>
 
         {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}

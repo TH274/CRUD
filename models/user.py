@@ -1,4 +1,4 @@
-from database.db_handler import load_users, add_user, delete_user, save_users
+from database.db_handler import load_users, add_user, delete_user, save_users, load_admin_users, add_admin_user
 import bcrypt
 
 class User:
@@ -11,15 +11,6 @@ class User:
         users = load_users()
         user_id = max([user['id'] for user in users], default=0) + 1
         new_user = {"id": user_id, "name": name, "email": email, "age": age}
-        add_user(new_user)
-        return new_user
-
-    @staticmethod
-    def create_with_password(name, email, password):
-        users = load_users()
-        user_id = max([user['id'] for user in users], default=0) + 1
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        new_user = {"id": user_id, "name": name, "email": email, "password": hashed_password.decode('utf-8')}
         add_user(new_user)
         return new_user
 
@@ -62,4 +53,29 @@ class User:
         for user in users:
             if user['email'] == email:
                 return user
+        return None
+    
+    @staticmethod
+    def is_email_for_user(user_id, email):
+        user = User.get_by_id(user_id)
+        if user and user['email'] == email:
+            return True
+        return False
+
+class Admin:
+    @staticmethod
+    def create(name, email, password):
+        admins = load_admin_users()
+        admin_id = max([admin['id'] for admin in admins], default=0) + 1
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        new_admin = {"id": admin_id, "name": name, "email": email, "password": hashed_password.decode('utf-8')}
+        add_admin_user(new_admin)
+        return new_admin
+
+    @staticmethod
+    def authenticate(email, password):
+        admins = load_admin_users()
+        for admin in admins:
+            if admin['email'] == email and bcrypt.checkpw(password.encode('utf-8'), admin['password'].encode('utf-8')):
+                return admin
         return None

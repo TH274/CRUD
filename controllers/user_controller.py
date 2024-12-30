@@ -1,6 +1,6 @@
 # Controller
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from models.user import User
+from models.user import Admin, User
 import bcrypt
 
 user_blueprint = Blueprint('users', __name__, template_folder='../templates')
@@ -9,6 +9,10 @@ auth_blueprint = Blueprint('auth', __name__, template_folder='../templates')
 
 @user_blueprint.route('/')
 def index():
+    if 'user_id' not in session:
+        flash("Please log in to access this page.", "error")
+        return redirect(url_for('auth.login'))
+    
     users = User.get_all()
     return render_template('user.html', users=users)
 
@@ -127,14 +131,13 @@ def register():
             return redirect(url_for('auth.register'))
 
         # Create user using create_with_password
-        User.create_with_password(name=name, email=email, password=password)
+        Admin.create(name=name, email=email, password=password)
         flash("Registration successful! Please log in.", "success")
         return redirect(url_for('auth.login'))
 
     return render_template('register.html')
 
 
-# Login Route
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -146,23 +149,16 @@ def login():
             flash("Both email and password are required!", "error")
             return redirect(url_for('auth.login'))
 
-        # Check if the email exists
-        user = User.get_by_email(email)
-        if not user:
-            flash("Email not registered!", "error")
-            return redirect(url_for('auth.login'))
+        # Authenticate as admin
+        admin = Admin.authenticate(email, password)
+        if admin:
+            # Successful login
+            session['user_id'] = admin['id']
+            session['user_name'] = admin['name']
+            flash(f"Welcome back, {admin['name']}!", "success")
+            return redirect(url_for('users.index'))  # Redirect to user.html
 
-        # Check if the password is correct
-        if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-            flash("Incorrect password!", "error")
-            return redirect(url_for('auth.login'))
-
-        # Successful login
-        session['user_id'] = user['id']
-        session['user_name'] = user['name']
-        flash(f"Welcome back, {user['name']}!", "success")
-        return redirect(url_for('users.index'))
-
+        flash("Invalid email or password!", "error")
     return render_template('login.html')
 
 # Logout Route
